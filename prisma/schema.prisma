@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuarios {
+  id         Int        @id @default(autoincrement())
+  nombre     String
+  apellido   String
+  correo     String     @unique
+  cedula     String
+  telefono   String
+  nacimiento DateTime   @db.Date
+  sexo       String
+  casillero  Int?       @db.UnsignedInt
+  facturas   Facturas[]
+}
+
+model Facturas {
+  factura_id Int         @id @default(autoincrement())
+  casillero  Int
+  fecha      String
+  pagado     Boolean     @default(false)
+  cliente    Usuarios    @relation(fields: [casillero], references: [id])
+  trackings  Trackings[]
+  total      Float       @default(0) @db.Float
+
+  @@index([casillero], map: "Facturas_casillero_fkey")
+}
+
+model Trackings {
+  tracking_id     Int      @id @default(autoincrement())
+  factura_id      Int
+  numero_tracking String
+  peso            Int
+  base            Float
+  precio          Float
+  factura         Facturas @relation(fields: [factura_id], references: [factura_id])
+
+  @@index([factura_id], map: "Trackings_factura_id_fkey")
+}
+
+model AuthUser {
+  id               String        @id @unique
+  username         String        @unique
+  correo           String        @unique
+  nombre           String
+  apellido         String
+  password_updated Boolean       @default(false)
+  auth_key         AuthKey[]
+  auth_session     AuthSession[]
+
+  @@map("auth_user")
+}
+
+model AuthSession {
+  id             String   @id @unique
+  user_id        String
+  active_expires BigInt
+  idle_expires   BigInt
+  auth_user      AuthUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("auth_session")
+}
+
+model AuthKey {
+  id              String   @id @unique
+  hashed_password String?
+  user_id         String
+  primary_key     Boolean
+  expires         BigInt?
+  auth_user       AuthUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("auth_key")
+}
