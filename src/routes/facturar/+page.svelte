@@ -14,13 +14,13 @@
 
   let infoTracking = {
     numero_tracking: "",
-    peso: 1,
-    precio: precioBase,
+    peso: 0,
+    precio: 0,
     base: precioBase,
     reset: function () {
       this.numero_tracking = "";
-      this.peso = 1;
-      this.precio = this.base;
+      this.peso = 0;
+      this.precio = 0;
     },
   };
 
@@ -35,7 +35,6 @@
     cliente.id = 0;
     cliente.nombre = "";
     cliente.apellido = "";
-
     cliente.correo = "";
   }
 
@@ -86,6 +85,7 @@
   }
 
   let especial = false;
+  let promocionEnabled = false;
 
   function addTracking(event: Event) {
     const tracking = { ...infoTracking };
@@ -108,6 +108,21 @@
   let timeout: ReturnType<typeof setTimeout>;
 
   let searching = false;
+
+  let promocion: {
+    cliente: {
+      promocion_id: number;
+      cliente_id: number;
+      libras: number;
+    };
+  };
+
+  async function getPromotionStatus() {
+    await axios.get(`/api/promocion/${cliente.id}`).then(({ data }) => {
+      promocion = data;
+    });
+  }
+
   function handleCasilleroChange() {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
@@ -122,6 +137,7 @@
         await axios.get(`/api/clientes/${casillero}`).then(({ data }) => {
           if (data.cliente) {
             cliente = data.cliente;
+            getPromotionStatus();
           } else {
             resetCliente();
             resetInfo();
@@ -133,6 +149,18 @@
         resetInfo();
       }
     }, 500);
+  }
+
+  function calcPrecio() {
+    let peso = infoTracking.peso;
+    if (promocionEnabled && (!promocion || promocion?.cliente?.libras < 5)) {
+      peso = peso - (5 - (promocion?.cliente?.libras || 0));
+    }
+    infoTracking.precio = infoTracking.base * peso;
+    if (infoTracking.precio <= 0) {
+      infoTracking.precio = 0;
+    }
+    infoTracking.precio = Number(infoTracking.precio.toFixed(2));
   }
 </script>
 
@@ -223,9 +251,11 @@
                   name="tipo"
                   class="radio radio-secondary"
                   on:click={() => {
-                    especial = false;
                     infoTracking.base = precioBase;
-                    infoTracking.precio = infoTracking.base;
+                    infoTracking.precio = 0;
+                    infoTracking.peso = 0;
+                    especial = false;
+                    promocionEnabled = false;
                   }}
                   checked
                 />
@@ -238,11 +268,34 @@
                   type="radio"
                   name="tipo"
                   class="radio radio-secondary"
-                  on:click={() => (especial = true)}
+                  on:click={() => {
+                    infoTracking.precio = 0;
+                    infoTracking.peso = 0;
+                    especial = true;
+                    promocionEnabled = false;
+                  }}
                 />
                 <span class="label-text ml-2">Cliente Precio Especial</span>
               </label>
             </div>
+            {#if promocion?.cliente?.libras < 5 || !promocion}
+              <div class="form-control w-fit">
+                <label class="label cursor-pointer">
+                  <input
+                    type="radio"
+                    name="tipo"
+                    class="radio radio-secondary"
+                    on:click={() => {
+                      infoTracking.precio = 0;
+                      infoTracking.peso = 0;
+                      especial = true;
+                      promocionEnabled = true;
+                    }}
+                  />
+                  <span class="label-text ml-2">Promoción 5 Libras</span>
+                </label>
+              </div>
+            {/if}
           </div>
           <div class="overflow-x-auto mt-4 text-white">
             <div class="flex justify-between items-center mb-2">
@@ -274,13 +327,7 @@
                         class="input input-bordered
         input-secondary"
                         bind:value={infoTracking.peso}
-                        on:input={() => {
-                          infoTracking.precio =
-                            infoTracking.base * infoTracking.peso;
-                          infoTracking.precio = Number(
-                            infoTracking.precio.toFixed(2)
-                          );
-                        }}
+                        on:input={() => calcPrecio()}
                         required
                       />
                     </div>
@@ -308,13 +355,7 @@
         input-secondary"
                         bind:value={infoTracking.base}
                         disabled={!especial}
-                        on:input={() => {
-                          infoTracking.precio =
-                            infoTracking.base * infoTracking.peso;
-                          infoTracking.precio = Number(
-                            infoTracking.precio.toFixed(2)
-                          );
-                        }}
+                        on:input={() => calcPrecio()}
                       />
                     </div>
                     <div class="form-control mt-2">

@@ -18,6 +18,7 @@ model Usuarios {
   sexo       String
   casillero  Int?       @db.UnsignedInt
   facturas   Facturas[]
+  Promocion  Promocion?
 }
 
 model Facturas {
@@ -42,6 +43,13 @@ model Trackings {
   factura         Facturas @relation(fields: [factura_id], references: [factura_id])
 
   @@index([factura_id], map: "Trackings_factura_id_fkey")
+}
+
+model Promocion {
+  id         Int      @id @default(autoincrement())
+  cliente_id Int      @unique
+  cliente    Usuarios @relation(fields: [cliente_id], references: [id])
+  libras     Int      @default(0)
 }
 
 model AuthUser {
