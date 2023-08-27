@@ -48,7 +48,7 @@
 
   <div class="my-3 w-full">
     <input
-      class="input input-bordered input-primary w-full"
+      class="input input-bordered input-secondary w-full"
       placeholder="Buscar Casillero"
       bind:value={$searchStore.search}
       on:input={() => (currentPage = 1)}
