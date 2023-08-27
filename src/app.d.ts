@@ -31,7 +31,7 @@ declare global {
 
   type Factura = {
     casillero: string | number;
-    trackings: Trackings[];
+    trackings: (Trackings & { promocion: boolean })[];
     reset?: Function;
   };
 

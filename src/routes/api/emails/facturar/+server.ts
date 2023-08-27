@@ -47,6 +47,8 @@ export const POST = async ({ request }: RequestEvent) => {
           {
             email: cliente.correo,
           },
+        ],
+        bcc: [
           {
             email: "sjcydev12@gmail.com",
           },

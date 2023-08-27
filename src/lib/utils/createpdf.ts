@@ -211,22 +211,9 @@ export async function createInvoice(
   });
 
   autoTable(doc, {
-    head: [["Datos Bancarios para Transferencia"]],
-    body: [
-      ["Banco General"],
-      ["Nombre: TBoxExpress"],
-      ["Tipo de Cuenta: "],
-      ["Cuenta: "],
-    ],
-    styles: { halign: "center" },
-    pageBreak: "avoid",
-    theme: "plain",
-  });
-
-  autoTable(doc, {
     didDrawPage: function (data) {
       let str =
-        "TBoxExpress | Teléfono +507 6362-8879\nDentro de Bisuteria y Accesorios Thrive, plaza Brisas Mall, local 25, fondo izquierdo, a lado de Optica Sosa";
+        "TBoxExpress | Teléfono +507 6553-2801\nDentro de Bisuteria y Accesorios Thrive, plaza Brisas Mall, local 25, fondo izquierdo, a lado de Optica Sosa";
       doc.setFontSize(11);
 
       var pageSize = doc.internal.pageSize;

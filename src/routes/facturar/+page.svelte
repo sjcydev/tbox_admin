@@ -17,10 +17,12 @@
     peso: 0,
     precio: 0,
     base: precioBase,
+    promocion: false,
     reset: function () {
       this.numero_tracking = "";
       this.peso = 0;
       this.precio = 0;
+      this.promocion = false;
     },
   };
 
@@ -44,6 +46,16 @@
   }
 
   let creating = false;
+  let promocionEnabled = false;
+  let promocion: {
+    cliente: {
+      promocion_id: number;
+      cliente_id: number;
+      libras: number;
+    };
+    librasUsadas: 0;
+  };
+
   async function crearFactura(event: Event) {
     if (info.trackings.length === 0) {
       toast.push("No tienes numero de trackings añadidos", {
@@ -69,6 +81,10 @@
               toast.push(data.message, { classes: [data.status] });
             });
 
+          if (promocionEnabled) {
+            axios.post(`/api/promocion`, { promocion });
+          }
+
           toast.push(message, { classes: [status] });
           const form = event.target as HTMLFormElement;
           form.reset();
@@ -85,13 +101,20 @@
   }
 
   let especial = false;
-  let promocionEnabled = false;
 
   function addTracking(event: Event) {
     const tracking = { ...infoTracking };
     tracking.base = Number(tracking.base);
     tracking.peso = Number(tracking.peso);
     tracking.precio = Number(tracking.precio);
+    if (promocionEnabled) {
+      tracking.promocion = true;
+      if (tracking.peso >= 5 - promocion.cliente.libras) {
+        promocion.cliente.libras = 5;
+      } else {
+        promocion.cliente.libras += tracking.peso;
+      }
+    }
     info.trackings.push(tracking);
     info.trackings = info.trackings;
     const form = event.target as HTMLFormElement;
@@ -101,7 +124,14 @@
   }
 
   function deleteTracking(index: number) {
-    info.trackings.splice(index, 1);
+    let a = info.trackings.splice(index, 1)[0];
+    if (a.promocion) {
+      if (a.peso >= 5 - promocion.librasUsadas) {
+        promocion.cliente.libras = promocion.librasUsadas;
+      } else {
+        promocion.cliente.libras -= a.peso;
+      }
+    }
     info = info;
   }
 
@@ -109,17 +139,23 @@
 
   let searching = false;
 
-  let promocion: {
-    cliente: {
-      promocion_id: number;
-      cliente_id: number;
-      libras: number;
-    };
-  };
-
   async function getPromotionStatus() {
     await axios.get(`/api/promocion/${cliente.id}`).then(({ data }) => {
-      promocion = data;
+      if (data?.cliente) {
+        promocion = {
+          cliente: data.cliente,
+          librasUsadas: data.cliente.libras,
+        };
+      } else {
+        promocion = {
+          cliente: {
+            cliente_id: cliente.id,
+            promocion_id: 0,
+            libras: 0,
+          },
+          librasUsadas: 0,
+        };
+      }
     });
   }
 
@@ -164,6 +200,8 @@
         peso = infoTracking.peso - pesoFaltante;
         precio = pesoFaltante * 2.5;
       }
+    } else {
+      peso = infoTracking.peso;
     }
     infoTracking.precio = precio + infoTracking.base * peso;
 
