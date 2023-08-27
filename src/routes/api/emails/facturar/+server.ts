@@ -50,7 +50,7 @@ export const POST = async ({ request }: RequestEvent) => {
         ],
         bcc: [
           {
-            email: "sjcydev12@gmail.com",
+            email: "tbexpress2023@gmail.com",
           },
         ],
         subject: "Tienes paquetes listo para retirar!",
