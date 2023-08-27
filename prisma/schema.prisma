@@ -14,9 +14,10 @@ model Usuarios {
   correo     String     @unique
   cedula     String
   telefono   String
-  nacimiento DateTime   @db.Date
+  nacimiento DateTime   @default(now()) @db.Date
   sexo       String
-  casillero  Int?       @db.UnsignedInt
+  casillero  Int?
+  precio     Float      @default(2.75) @db.Float
   facturas   Facturas[]
   Promocion  Promocion?
 }

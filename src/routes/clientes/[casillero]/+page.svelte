@@ -12,6 +12,7 @@
     correo: data.usuario.correo,
     telefono: data.usuario.telefono,
     casillero: data.usuario.casillero,
+    precio: data.usuario.precio,
   };
 
   let registering = false;
@@ -55,7 +56,7 @@
         type="text"
         placeholder="Casillero"
         class="input input-bordered
-        input-primary"
+        input-secondary"
         bind:value={usuario.casillero}
         required
       />
@@ -68,7 +69,7 @@
           type="text"
           placeholder="Nombre"
           class="input input-bordered
-        input-primary w-full"
+        input-secondary w-full"
           bind:value={usuario.nombre}
           required
         />
@@ -78,7 +79,7 @@
           type="text"
           placeholder="Apellido"
           class="input input-bordered
-        input-primary w-full"
+        input-secondary w-full"
           bind:value={usuario.apellido}
           required
         />
@@ -89,7 +90,7 @@
         type="email"
         placeholder="Correo"
         class="input input-bordered
-        input-primary"
+        input-secondary"
         bind:value={usuario.correo}
         required
       />
@@ -99,13 +100,26 @@
         type="text"
         placeholder="Telefono"
         class="input input-bordered
-        input-primary"
+        input-secondary"
         bind:value={usuario.telefono}
         required
       />
     </div>
+    <div class="form-control">
+      <label for="casillero" class="label">
+        <span class="label-text">Precio </span>
+      </label>
+      <input
+        type="text"
+        name="casillero"
+        class="input input-bordered
+        input-secondary join-item w-full"
+        bind:value={usuario.precio}
+        required
+      />
+    </div>
     <div class="form-control mt-6">
-      <button type="submit" class="btn btn-primary">
+      <button type="submit" class="btn btn-secondary">
         {#if registering}
           <span class="loading loading-spinner loading-md" />
         {:else}

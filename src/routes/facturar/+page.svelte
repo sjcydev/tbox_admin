@@ -159,6 +159,8 @@
     });
   }
 
+  let clienteEspecial = false;
+
   function handleCasilleroChange() {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
@@ -173,6 +175,16 @@
         await axios.get(`/api/clientes/${casillero}`).then(({ data }) => {
           if (data.cliente) {
             cliente = data.cliente;
+            if (data.cliente.precio !== precioBase) {
+              especial = true;
+              clienteEspecial = true;
+              infoTracking.base = data.cliente.precio;
+            } else {
+              especial = false;
+              clienteEspecial = false;
+              infoTracking.base = precioBase;
+              infoTracking.reset();
+            }
             getPromotionStatus();
           } else {
             resetCliente();
@@ -286,6 +298,19 @@
             disabled
           />
         </div>
+        {#if clienteEspecial}
+          <div class="form-control mt-3 lg:mt-4">
+            <input
+              type="text"
+              placeholder="TIPO DE CLIENTE"
+              class="input input-bordered
+        input-primary uppercase"
+              value="cliente especial"
+              disabled
+            />
+          </div>
+        {/if}
+
         {#if cliente.nombre}
           <div class="form-control mt-4">
             <p>Tipo de Casillero</p>
@@ -302,7 +327,7 @@
                     especial = false;
                     promocionEnabled = false;
                   }}
-                  checked
+                  checked={!especial}
                 />
                 <span class="label-text ml-2">Cliente Casillero</span>
               </label>
@@ -319,6 +344,7 @@
                     especial = true;
                     promocionEnabled = false;
                   }}
+                  checked={especial}
                 />
                 <span class="label-text ml-2">Cliente Precio Especial</span>
               </label>
