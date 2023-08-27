@@ -152,14 +152,21 @@
   }
 
   function calcPrecio() {
-    let peso = infoTracking.peso;
+    let peso = 0;
+    let precioBase = infoTracking.base;
+    let precio = 0;
     if (promocionEnabled && (!promocion || promocion?.cliente?.libras < 5)) {
-      peso = peso - (5 - (promocion?.cliente?.libras || 0));
+      let pesoFaltante = 5 - (promocion?.cliente?.libras || 0);
+      if (infoTracking.peso <= pesoFaltante) {
+        precioBase = 2.5;
+        precio = precioBase * infoTracking.peso;
+      } else {
+        peso = infoTracking.peso - pesoFaltante;
+        precio = pesoFaltante * 2.5;
+      }
     }
-    infoTracking.precio = infoTracking.base * peso;
-    if (infoTracking.precio <= 0) {
-      infoTracking.precio = 0;
-    }
+    infoTracking.precio = precio + infoTracking.base * peso;
+
     infoTracking.precio = Number(infoTracking.precio.toFixed(2));
   }
 </script>
