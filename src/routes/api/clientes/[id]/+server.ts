@@ -27,7 +27,7 @@ export const GET = async ({ params }: RequestEvent) => {
 };
 export const POST = async ({ request, params }: RequestEvent) => {
   const { usuario } = await request.json();
-  let { nombre, apellido, casillero, correo, telefono } = usuario;
+  let { nombre, apellido, casillero, correo, telefono, precio } = usuario;
 
   casillero = parseInt(casillero);
 
@@ -42,6 +42,7 @@ export const POST = async ({ request, params }: RequestEvent) => {
         apellido,
         correo,
         telefono,
+        precio: Number(precio),
       },
     });
   } catch (err) {
